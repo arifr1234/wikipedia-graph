@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html id="html">
+    <head>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+
+        <link rel="stylesheet" href="//en.wikipedia.org/w/load.php?debug=false&lang=en&modules=mediawiki.legacy.commonPrint,shared|skins.vector.styles&only=styles&skin=vector&*">
+
+
+        <style>
+            #html, #body 
+            {   
+                margin: 0; 
+                height: 100%; 
+                overflow: hidden;
+            }
+
+            #body
+            {
+                display: flex;
+            }
+
+            #svgcontainer
+            {
+                flex-grow: 1;
+
+                display: flex;
+
+                font-size: xx-large;
+            }
+
+            #iframe
+            {
+                flex-basis: 65%;
+                overflow: auto;
+            }
+    
+            .noselect {
+                -webkit-touch-callout: none; /* iOS Safari */
+                -webkit-user-select: none; /* Safari */
+                -khtml-user-select: none; /* Konqueror HTML */
+                -moz-user-select: none; /* Old versions of Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+            }
+        </style>
+    </head>
+    <body id="body">
+        <!--
+        <iframe id="iframe" width="80%" style="border: 0px;" src="https://en.wikipedia.org/wiki/Glider_(Conway%27s_Life)"></iframe>
+        -->
+        <div id="iframe"></div>
+
+        <a id="dragBar" style="cursor:col-resize; width:10px;"></a>
+        <div id="svgcontainer"></div>
+
+        <script>
+            dragBarWidth = d3.select("#dragBar").node().getBoundingClientRect().width;
+            let iframe = d3.select("#iframe");
+            d3.select("#dragBar").call(d3.drag()
+                .on("drag", (event) => { iframe.style("flex-basis", `${event.x - dragBarWidth/2}px`); })
+            )
+        </script>
+
+        <script src="index.js"></script>
+    </body>
+</html>
