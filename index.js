@@ -1,17 +1,23 @@
-var canvas = document.createElement('canvas'),
-        context = canvas.getContext('2d');
+if(false)
+{
+    var canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d');
 
-    /**
-     * Measures the rendered width of arbitrary text given the font size and font face
-     * @param {string} text The text to measure
-     * @param {number} fontSize The font size in pixels
-     * @param {string} fontFace The font face ("Arial", "Helvetica", etc.)
-     * @returns {number} The width of the text
-     **/
-    function getWidth(text, fontSize, fontFace) {
-        context.font = fontSize + 'px ' + fontFace;
-        return context.measureText(text).width;
-    }
+        /**
+         * Measures the rendered width of arbitrary text given the font size and font face
+         * @param {string} text The text to measure
+         * @param {number} fontSize The font size in pixels
+         * @param {string} fontFace The font face ("Arial", "Helvetica", etc.)
+         * @returns {number} The width of the text
+         **/
+        function getWidth(text, fontSize, fontFace) {
+            context.font = fontSize + 'px ' + fontFace;
+            return context.measureText(text).width;
+        }
+}
+
+
+
 
 
 
@@ -92,22 +98,17 @@ let link = container.append("g")
 ;
 
 let node = container.append("g")
-    //.attr("stroke", "#000")
-    //.attr("stroke-width", 1.5)
     .style("text-anchor", "middle")
     .style("dominant-baseline", "central")
     .selectAll("text")
 ;
-// TODO: a tag `javascript:loadWikiPage("${mat[1]}");`
 
 
-//let links = null;
 let nodes = [];
 
 function update()
 {
     let links = dataLinks.map(d => Object.create(d));
-    //nodes = Array.from(dataNodes).map(d => { return { "id": d }; });
 
     simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(200))
@@ -134,7 +135,6 @@ function update()
         .join("text")
         .text(d => d.id)
         .attr("class", "noselect")
-        //.attr("fill", "#888")
         .call(drag(simulation))
         .on("click", (e, d) => {
             loadWikiPage(d.id);
@@ -221,7 +221,7 @@ function loadWikiPage(titel)
             .each(function() {
                 let last = d3.select(this).attr("href");
 
-                let mat = last.match(/^\.\/([^#]+)/); //  last.match(/^https?:\/\/en\.wikipedia\.org\/wiki\/(.+)/);
+                let mat = last.match(/^\.\/([^#]+)/);
                 if(mat != null)
                 {
                     const linkTitel = mat[1].replace(/_/g, ' ');
@@ -261,13 +261,6 @@ function loadWikiPage(titel)
                     d3.select(this).attr("target", "_blank");
                 }
             });
-
-        //currentTitel = titel;
-
-        /*if(shouldUpdate) 
-        {
-            update();
-        }*/
     })
     .then(function() {
         if(newPage)
@@ -278,7 +271,6 @@ function loadWikiPage(titel)
             //update();
         }
 
-        //let shouldUpdate = false;
         dataNodes.forEach((e) => {
             if(e in linkFrom)
             {
@@ -296,3 +288,17 @@ function loadWikiPage(titel)
 }
 
 loadWikiPage("Glider (Conway's Life)");
+
+
+
+
+
+
+//d3.html(`https://en.wikipedia.org/wiki/Special:Search`).then(function(data)
+//{
+    //data = `<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"search box","href":"./Template:Search_box"},"params":{},"i":0}}]}' id="mwAQ">
+    //<div class="mw-inputbox-centered" style="" typeof="mw:Extension/inputbox" about="#mwt3" data-mw='{"name":"inputbox","attrs":{},"body":{"extsrc":"\nbgcolor=transparent\ntype=fulltext\nprefix=Main Page/\nbreak=no\nwidth=22\nsearchbuttonlabel=Search\n"}}'><form name="searchbox" class="searchbox" action="/wiki/Special:Search"><input class="mw-searchInput searchboxInput mw-ui-input mw-ui-input-inline" name="search" type="text" value="" placeholder="" size="22" dir="ltr"/><input type="hidden" value="Main Page/" name="prefix"/> <input type="submit" name="fulltext" class="mw-ui-button" value="Search"/><input type="hidden" value="Search" name="fulltext"/></form></div>
+    //</div>`;
+    //searchDiv.node().innerHTML = data;//'';
+    //searchDiv.node().append(data.documentElement);
+//});

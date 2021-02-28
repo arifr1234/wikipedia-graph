@@ -28,10 +28,36 @@
                 font-size: xx-large;
             }
 
-            #iframe
+            #iframeContainer
             {
+                
+
                 flex-basis: 65%;
                 overflow: auto;
+            }
+
+            #iframe
+            {
+                position: absolute;
+                width: 100%;
+            }
+
+            #searchDiv
+            {
+                position: absolute;
+                /*width: 100%;*/
+                /*height: 100%;*/
+
+                padding: 10px;
+
+                background-color: hotpink;
+            }
+
+            #nevButton
+            {
+                padding: 5px;
+
+                margin: 10px;
             }
     
             .noselect {
@@ -42,23 +68,71 @@
                 -ms-user-select: none; /* Internet Explorer/Edge */
                 user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
             }
+
+            .visibility-hidden
+            {
+                visibility: hidden;
+
+                height: 0px;
+                overflow: hidden;
+            }
         </style>
     </head>
     <body id="body">
-        <!--
-        <iframe id="iframe" width="80%" style="border: 0px;" src="https://en.wikipedia.org/wiki/Glider_(Conway%27s_Life)"></iframe>
-        -->
-        <div id="iframe"></div>
+        <div id="iframeContainer">
+            <button id="nevButton"></button>
+            <div style="position: relative; width: 100%;">
+                <div id="iframe"></div>
+                <div id="searchDiv">
+                    <form action="javascript:loadWikiPage(document.getElementById('inputTitel').value);">
+                        <input id="inputTitel" type="text" />
+                        <input type="submit" />
+                    </form>
+                </div>
+            </div>
+        </div>
 
-        <a id="dragBar" style="cursor:col-resize; width:10px;"></a>
+        <a id="dragBar" style="cursor:col-resize; width:10px; background-color: lightblue;"></a>
         <div id="svgcontainer"></div>
 
         <script>
             dragBarWidth = d3.select("#dragBar").node().getBoundingClientRect().width;
-            let iframe = d3.select("#iframe");
+            let iframeContainer = d3.select("#iframeContainer");
             d3.select("#dragBar").call(d3.drag()
-                .on("drag", (event) => { iframe.style("flex-basis", `${event.x - dragBarWidth/2}px`); })
+                .on("drag", (event) => { iframeContainer.style("flex-basis", `${event.x - dragBarWidth/2}px`); })
             )
+        </script>
+
+        <script>
+            let iframe = d3.select("#iframe");
+            var searchDiv = d3.select("#searchDiv");
+
+            let nevButton = d3.select("#nevButton")
+
+            let isSearch = true;
+
+            function nevButtonClick() {
+                isSearch = !isSearch;
+
+                if(isSearch)
+                {
+                    iframe.attr("class", "visibility-hidden");
+                    searchDiv.attr("class", " ");  // TODO: very bad.
+
+                    nevButton.html("View");
+                }
+                else
+                {
+                    iframe.attr("class", " ");
+                    searchDiv.attr("class", "visibility-hidden");
+
+                    nevButton.html("Search");
+                }
+            }
+
+            nevButtonClick();
+
+            nevButton.on("click", nevButtonClick);
         </script>
 
         <script src="index.js"></script>
