@@ -10,3 +10,5 @@
 #V Currently viewed page indecation.
 #  Navigation buttons.
 #! Page cache.
+#  Navigate search results with arrows.
+#  Scroll up on page load.

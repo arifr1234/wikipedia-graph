@@ -235,37 +235,35 @@ function loadWikiPage(titel)
                 let last = d3.select(this).attr("href");
 
                 let mat = last.match(/^\.\/([^#]+)/);
-                if(mat != null)
+
+                const linkTitel = (mat != null ? mat[1].replace(/_/g, ' ') : "");
+
+                if(mat != null && linkTitel != titel)
                 {
-                    const linkTitel = mat[1].replace(/_/g, ' ');
+                    d3.select(this).attr("href", `javascript:loadWikiPage("${linkTitel}");`);
 
-                    if(linkTitel != titel)
+                    if(newPage)
                     {
-                        d3.select(this).attr("href", `javascript:loadWikiPage("${linkTitel}");`);
-
-                        if(newPage)
+                        if(dataNodes.has(linkTitel))
                         {
-                            if(dataNodes.has(linkTitel))
-                            {
-                                shouldUpdate |= addLink(titel, linkTitel);
-                            }
+                            shouldUpdate |= addLink(titel, linkTitel);
+                        }
 
-                            if(linkTitel in linkFrom)
+                        if(linkTitel in linkFrom)
+                        {
+                            /*let linksFromLinkTitel = linkFrom[linkTitel];
+                            let lastSize = linksFromLinkTitel.size;
+                            linksFromLinkTitel.add(titel);
+                            if(lastSize == 1 && linksFromLinkTitel.size == 2)
                             {
-                                /*let linksFromLinkTitel = linkFrom[linkTitel];
-                                let lastSize = linksFromLinkTitel.size;
-                                linksFromLinkTitel.add(titel);
-                                if(lastSize == 1 && linksFromLinkTitel.size == 2)
-                                {
-                                    console.log(linkTitel);
-                                }*/
+                                console.log(linkTitel);
+                            }*/
 
-                                linkFrom[linkTitel].add(titel);
-                            }
-                            else
-                            {
-                                linkFrom[linkTitel] = new Set([titel]);
-                            }
+                            linkFrom[linkTitel].add(titel);
+                        }
+                        else
+                        {
+                            linkFrom[linkTitel] = new Set([titel]);
                         }
                     }
                 }
