@@ -106,17 +106,6 @@ let node = container.append("g")
 
 let nodes = [];
 
-function nodeColor(highlightTitel)
-{
-    node = node.attr("fill", (d) => {
-        if(d.id == highlightTitel)
-        {
-            return "red";
-        }
-        return "black";
-    });
-}
-
 function update()
 {
     let links = dataLinks.map(d => Object.create(d));
@@ -193,6 +182,19 @@ function addLink(source, target)
     }
 
     return false;
+}
+
+
+
+function nodeColor(highlightTitel)
+{
+    node = node.attr("fill", (d) => {
+        if(d.id == highlightTitel)
+        {
+            return "red";
+        }
+        return "black";
+    });
 }
 
 

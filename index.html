@@ -49,8 +49,6 @@
                 /*height: 100%;*/
 
                 padding: 10px;
-
-                background-color: hotpink;
             }
 
             #nevButton
@@ -58,6 +56,14 @@
                 padding: 5px;
 
                 margin: 10px;
+            }
+
+            .suggestion 
+            {
+                display: block;
+                /*border-style: solid;*/
+                margin: 5px;
+                border-color: black;
             }
     
             .noselect {
@@ -84,10 +90,8 @@
             <div style="position: relative; width: 100%;">
                 <div id="iframe"></div>
                 <div id="searchDiv">
-                    <form action="javascript:loadWikiPage(document.getElementById('inputTitel').value);">
-                        <input id="inputTitel" type="text" />
-                        <input type="submit" />
-                    </form>
+                    <input id="inputTitel" type="text" style="margin: 5px;" />
+                    <div id="suggestions"></div>
                 </div>
             </div>
         </div>
@@ -133,6 +137,29 @@
             nevButtonClick();
 
             nevButton.on("click", nevButtonClick);
+        </script>
+
+        <script>
+            d3.select("#inputTitel").on("input", function(e) {
+                let searchString = e.target.value;
+                if(searchString == "") return;
+
+                d3.json(`https://en.wikipedia.org/w/api.php?action=opensearch&origin=*&search=${searchString}`)//(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${searchString}&limit=10`)
+                    .then(function(data)
+                    {
+                        let suggestions = d3.select("#suggestions");
+                        suggestions.html("");
+                        data[1].forEach(searchRes => {
+                            suggestions.append("a")
+                                .attr("class", "suggestion")
+                                .html(searchRes)
+                                .on("click", () => {
+                                    loadWikiPage(searchRes);
+                                })
+                            ;
+                        });
+                    });
+            });
         </script>
 
         <script src="index.js"></script>

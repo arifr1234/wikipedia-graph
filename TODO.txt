@@ -5,7 +5,7 @@
 #? Add nodes to a page which have multiple pages linking to it (>= 2). 
     This didn't work with (>= 2) because there where too many pages satisfying this condition.
     Maybe (>= 3/4).
-#! Better Search.
+#V Better Search.
 #  Node delete.
 #V Currently viewed page indecation.
 #  Navigation buttons.
