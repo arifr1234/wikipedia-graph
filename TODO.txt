@@ -7,4 +7,6 @@
     Maybe (>= 3/4).
 #! Better Search.
 #  Node delete.
-
+#V Currently viewed page indecation.
+#  Navigation buttons.
+#! Page cache.
