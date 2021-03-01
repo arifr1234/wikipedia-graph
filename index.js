@@ -287,7 +287,7 @@ function loadWikiPage(titel)
     });
 }
 
-loadWikiPage("Glider (Conway's Life)");
+loadWikiPage("Geometry");
 
 
 

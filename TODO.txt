@@ -1,5 +1,10 @@
 #V Stronger forceManyBody.
-#! Search.
+#V Search.
 #  Nodes and links coloring.
 #  Clickable links.
-#? Add nodes to a page which have multiple pages linked to it (>= 2). 
+#? Add nodes to a page which have multiple pages linking to it (>= 2). 
+    This didn't work with (>= 2) because there where too many pages satisfying this condition.
+    Maybe (>= 3/4).
+#! Better Search.
+#  Node delete.
+
