@@ -121,7 +121,7 @@ function update()
         //.force("y", d3.forceY(height / 2))
     ;
 
-    console.log(links);
+    //console.log(links);
 
     link = link
         .data(links)
@@ -131,7 +131,7 @@ function update()
         .attr("fill", "transparent")
         .on("click", (e, d) => {
             loadWikiPage(d.source.id, d.linkId);
-            console.log(d.linkId);
+            //console.log(d.linkId);
         })
     ;
     
@@ -211,12 +211,19 @@ function nodeColor(highlightTitel)
     });
 }
 
+function validId(titel)
+{
+    return titel.replace(/ /g, '_').replace(/^[^a-z]|[^\w:.-]/gi, m => m.charCodeAt(0));
+}
+
 
 let linkFrom = {};
 /*
 If (x in linkFrom[y]) then there is a link to the page y in the page x.
 linkFrom[y] contain all the pages with links to page y.
 */
+
+let pageContainer = d3.select("#pageContainer");
 
 function loadWikiPage(titel, scrollTo)
 {
@@ -225,36 +232,44 @@ function loadWikiPage(titel, scrollTo)
     let newPage = !dataNodes.has(titel);
     // Can also do dataNodes.add(titel); hare and then newPage = lastSize != newSize.
 
+    let pr = null;
 
-    d3.html(`https://en.wikipedia.org/api/rest_v1/page/html/${titel}`).then(function(data)
+    if(newPage)
     {
-        iframe.node().innerHTML = '';
-        iframe.node().append(data.documentElement);
-        
-        iframe.select("body")
-            .style("height", "auto")
-            .style("overflow-y", "auto")
-            .insert("h1", ":first-child")
-            .style("font-size", "28.8px")
-            .style("margin-top", "0px")
-            .attr("class", "firstHeading")
-            .attr("id", "firstHeading")
-            .html(titel);
-        
-        iframe.selectAll("a")
-            .each(function() {
-                let last = d3.select(this).attr("href");
+        pr = d3.html(`https://en.wikipedia.org/api/rest_v1/page/html/${titel}`).then(function(data)
+        {
+            if(currentPage != null) currentPage.style("display", "none");
 
-                let mat = last.match(/^\.\/([^#]+)/);
+            currentPage = pageContainer.append("div")
+                .attr("id", validId(titel));
+            ;
+            currentPage.node().append(data.documentElement);
 
-                const linkTitel = (mat != null ? mat[1].replace(/_/g, ' ') : "");
+            
+            currentPage.select("body")
+                .style("height", "auto")
+                .style("overflow", "visible")
+                .insert("h1", ":first-child")
+                    .style("font-size", "28.8px")
+                    .style("margin-top", "0px")
+                    .attr("class", "firstHeading")
+                    .attr("id", "firstHeading")
+                    .html(titel)
+            ;            
+            
+            currentPage.selectAll("a")
+                .each(function() {
+                    let last = d3.select(this).attr("href");
 
-                if(mat != null && linkTitel != titel)
-                {
-                    d3.select(this).attr("href", `javascript:loadWikiPage(\`${linkTitel}\`);`);
+                    let mat = last.match(/^\.\/([^#]+)/);
 
-                    if(newPage)
+                    const linkTitel = (mat != null ? mat[1].replace(/_/g, ' ') : "");
+
+                    if(mat != null && linkTitel != titel)
                     {
+                        d3.select(this).attr("href", `javascript:loadWikiPage(\`${linkTitel}\`);`);
+
+                    
                         if(dataNodes.has(linkTitel))
                         {
                             addLink(titel, linkTitel, d3.select(this).attr("id"));
@@ -277,54 +292,69 @@ function loadWikiPage(titel, scrollTo)
 
                         if(!(titel in linkFrom[linkTitel]))
                         {
-                            linkFrom[linkTitel][titel] = d3.select(this).attr("id");
-                            console.log(`set linkFrom[${linkTitel}][${titel}] = ${linkFrom[linkTitel][titel]}`);
+                            let id = d3.select(this).attr("id");
+                            if(id == null)
+                            {
+                                id = validId(titel + " to " + linkTitel);
+                                d3.select(this).attr("id", id);
+                            }
+                            linkFrom[linkTitel][titel] = id;
+                            //console.log(`set linkFrom[${linkTitel}][${titel}] = ${linkFrom[linkTitel][titel]}`);
                         }
                     }
-                }
-                else
-                {
-                    d3.select(this).attr("target", "_blank");
-                }
-            });
-    })
-    .then(function() {
-        if(newPage)
-        {
+                    else
+                    {
+                        d3.select(this).attr("target", "_blank");
+                    }
+                });
+        })
+        .then(function() {
             dataNodes.add(titel);
             nodes.push({ "id": titel });
 
-            //update();
-        }
+            dataNodes.forEach((e) => {
+                if(e in linkFrom)
+                {
+                    Object.entries(linkFrom[e]).forEach(l => {
+                        //console.log(`get linkFrom[${e}][${l[0]}] = ${l[1]}`);
+                        addLink(l[0], e, l[1]);
+                    });
+                }
+            });
 
-        dataNodes.forEach((e) => {
-            if(e in linkFrom)
-            {
-                Object.entries(linkFrom[e]).forEach(l => {
-                    console.log(`get linkFrom[${e}][${l[0]}] = ${l[1]}`);
-                    addLink(l[0], e, l[1]);
-                });
-            }
-        });
-
-        if(newPage)
-        {
             update();
-        }
+        });
+    }
+    else
+    {
+        pr = Promise.resolve().then(function()
+        {
+            let newPage = d3.select(`#${validId(titel)}`);
+
+            changePage(currentPage, newPage);
+
+            currentPage = newPage;
+        });
+    }
+
+    pr.then(function() {
+        currentPage.selectAll("a")
+            .each(function() {
+                d3.select(this).style("background-color", null);
+            });
 
         nodeColor(titel);
 
         if(typeof scrollTo !== 'undefined')
         {
-            d3.select(`#${scrollTo}`)
+            d3.select(`#${validId(titel)} #${scrollTo}`)
                 .style("background-color", "yellow")
                 .node().scrollIntoView()
             ;
-
         }
         else
         {
-            iframeContainer.node().scrollTop = 0;
+            currentPage.node().scrollTop = 0;
         }
     });
 }

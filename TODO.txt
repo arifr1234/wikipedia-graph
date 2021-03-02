@@ -9,6 +9,6 @@
 #  Node delete.
 #V Currently viewed page indecation.
 #  Navigation buttons.
-#! Page cache.
+#V Page cache.
 #  Navigate search results with arrows.
 #V Scroll up on page load.

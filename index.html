@@ -7,12 +7,12 @@
 
 
         <style>
-            #html, #body 
+            /*#html, #body 
             {   
                 margin: 0; 
                 height: 100%; 
                 overflow: hidden;
-            }
+            }*/
 
             #body
             {
@@ -28,27 +28,28 @@
                 font-size: xx-large;
             }
 
-            #iframeContainer
+            #leftDiv
             {
-                
-
                 flex-basis: 65%;
-                overflow: auto;
+
+                display: flex;
+                flex-direction: column;
             }
 
-            #iframe
+            #pageContainer
+            {
+                position: relative;
+                width: 100%;
+
+                flex-grow: 1;
+            }
+
+            #pageContainer > *
             {
                 position: absolute;
                 width: 100%;
-            }
-
-            #searchDiv
-            {
-                position: absolute;
-                /*width: 100%;*/
-                /*height: 100%;*/
-
-                padding: 10px;
+                height: 100%;
+                overflow: auto;
             }
 
             #nevButton
@@ -74,24 +75,18 @@
                 -ms-user-select: none; /* Internet Explorer/Edge */
                 user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
             }
-
-            .visibility-hidden
-            {
-                visibility: hidden;
-
-                height: 0px;
-                overflow: hidden;
-            }
         </style>
     </head>
     <body id="body">
-        <div id="iframeContainer">
+        <div id="leftDiv">
             <button id="nevButton"></button>
-            <div style="position: relative; width: 100%;">
+            <div id="pageContainer">
                 <div id="iframe"></div>
                 <div id="searchDiv">
-                    <input id="inputTitel" type="text" style="margin: 5px;" />
-                    <div id="suggestions"></div>
+                    <div style="margin: 10px;">
+                        <input id="inputTitel" type="text" style="margin: 5px;" />
+                        <div id="suggestions"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -101,17 +96,23 @@
 
         <script>
             dragBarWidth = d3.select("#dragBar").node().getBoundingClientRect().width;
-            let iframeContainer = d3.select("#iframeContainer");
+            let leftDiv = d3.select("#leftDiv");
             d3.select("#dragBar").call(d3.drag()
-                .on("drag", (event) => { iframeContainer.style("flex-basis", `${event.x - dragBarWidth/2}px`); })
+                .on("drag", (event) => { leftDiv.style("flex-basis", `${event.x - dragBarWidth/2}px`); })
             )
         </script>
 
         <script>
-            let iframe = d3.select("#iframe");
-            var searchDiv = d3.select("#searchDiv");
+            let currentPage = null;
+            let searchDiv = d3.select("#searchDiv");
 
-            let nevButton = d3.select("#nevButton")
+            let nevButton = d3.select("#nevButton");
+
+            function changePage(oldPage, newPage)
+            {
+                if(oldPage != null) oldPage.style("display", "none");
+                if(newPage != null) newPage.style("display", null);
+            }
 
             let isSearch = true;//false;
 
@@ -120,15 +121,13 @@
 
                 if(isSearch)
                 {
-                    iframe.attr("class", "visibility-hidden");
-                    searchDiv.attr("class", " ");  // TODO: very bad.
+                    changePage(currentPage, searchDiv);
 
                     nevButton.html("View");
                 }
                 else
                 {
-                    iframe.attr("class", " ");
-                    searchDiv.attr("class", "visibility-hidden");
+                    changePage(searchDiv, currentPage);
 
                     nevButton.html("Search");
                 }
