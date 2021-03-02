@@ -52,7 +52,7 @@ drag = simulation => {
 height = 600;
 width = 600;
 
-const dataLinks = [];
+const dataLinks = {};
 const dataNodes = new Set();
 
 
@@ -108,7 +108,7 @@ let nodes = [];
 
 function update()
 {
-    let links = dataLinks.map(d => Object.create(d));
+    let links = Object.values(dataLinks);
 
     simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(200))
@@ -175,22 +175,10 @@ function update()
 
 function addLink(source, target, linkId)
 {
-    let newLink = { "source": source, "target": target, "linkId": linkId };
-
-    let found = false;
-
-    for(let i = 0; i < dataLinks.length; i++)
-    {
-        if(dataLinks[i].source == newLink.source && dataLinks[i].target == newLink.target)
-        {
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-    {
-        dataLinks.push(newLink);
+    let key = `${source}[to]${target}`;
+    if(!(key in dataLinks))
+    {        
+        dataLinks[key] = { "source": source, "target": target, "linkId": linkId };
 
         return true;
     }
@@ -255,7 +243,7 @@ function loadWikiPage(titel, scrollTo)
                     .attr("class", "firstHeading")
                     .attr("id", "firstHeading")
                     .html(titel)
-            ;            
+            ;
             
             currentPage.selectAll("a")
                 .each(function() {
