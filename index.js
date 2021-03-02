@@ -76,7 +76,7 @@ svg.call(d3.zoom()
 /// Marker ///
 svg.append("svg:defs").append("svg:marker")
     .attr("id", "triangle")
-    .attr("refX", 0)
+    .attr("refX", -2)
     .attr("refY", 0)
     .attr("markerWidth", 3.5)
     .attr("markerHeight", 3.5)
@@ -148,18 +148,18 @@ function update()
     ;
 
     simulation.on("tick", () => {
-        const i = (d) => d3.interpolate([d.source.x, d.source.y], [d.target.x, d.target.y]);
-        const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
-
-        const perp = (d, s) => [s*(d.target.y - d.source.y), s*(d.source.x - d.target.x)];
-        // TODO: normalise perp.
-
         link
             .attr("d", (d) => {
+                let source = new Vec2(d.source.x, d.source.y);
+                let target = new Vec2(d.target.x, d.target.y);
+
+                let perp = target.subV(source);
+                perp = new Vec2(-perp.y, perp.x).normalize();
+
                 return `
-                    M ${add(i(d)(0.1), perp(d, 0.02))} 
-                    Q ${add(i(d)(0.5), perp(d, 0.1))}
-                    ${add(i(d)(0.9), perp(d, 0.02))}
+                    M ${source.lerp(target, 0.15).addV(perp.mulS(6)).toArray()} 
+                    Q ${source.lerp(target, 0.5).addV(perp.mulS(18)).toArray()}
+                    ${source.lerp(target, 0.85).addV(perp.mulS(6)).toArray()}
                 `
             })
         ;
