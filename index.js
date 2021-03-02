@@ -76,16 +76,16 @@ svg.call(d3.zoom()
 /// Marker ///
 svg.append("svg:defs").append("svg:marker")
     .attr("id", "triangle")
-    .attr("refX", 3.5)
+    .attr("refX", 0)
     .attr("refY", 0)
-    .attr("markerWidth", 5)
-    .attr("markerHeight", 5)
+    .attr("markerWidth", 3.5)
+    .attr("markerHeight", 3.5)
     .attr("orient", "auto")
     .attr("viewBox", "-6, -6, 12, 12")
     .append("path")
     .attr("d", "M -6 -6 6 0 -6 6 -3 0")
     .style("fill", "#999")
-    //.attr("opacity", 0.6)
+    .attr("opacity", 0.6)
 ;
 
 
@@ -94,7 +94,7 @@ let container = svg.append("g");
 let link = container.append("g")
     .attr("stroke", "#999")
     .attr("stroke-opacity", 0.6)
-    .selectAll("line")
+    .selectAll("path")
 ;
 
 let node = container.append("g")
@@ -121,12 +121,18 @@ function update()
         //.force("y", d3.forceY(height / 2))
     ;
 
+    console.log(links);
 
     link = link
         .data(links)
-        .join("line")
+        .join("path")
         .attr("marker-end", "url(#triangle)")
         .attr("stroke-width", 5)
+        .attr("fill", "transparent")
+        .on("click", (e, d) => {
+            loadWikiPage(d.source.id, d.linkId);
+            console.log(d.linkId);
+        })
     ;
     
 
@@ -142,13 +148,21 @@ function update()
     ;
 
     simulation.on("tick", () => {
-        let i = (d) => d3.interpolate(d.source, d.target);
+        const i = (d) => d3.interpolate([d.source.x, d.source.y], [d.target.x, d.target.y]);
+        const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
+
+        const perp = (d, s) => [s*(d.target.y - d.source.y), s*(d.source.x - d.target.x)];
+        // TODO: normalise perp.
 
         link
-            .attr("x1", d => i(d)(0.1).x)
-            .attr("y1", d => i(d)(0.1).y)
-            .attr("x2", d => i(d)(0.9).x)
-            .attr("y2", d => i(d)(0.9).y);
+            .attr("d", (d) => {
+                return `
+                    M ${add(i(d)(0.1), perp(d, 0.02))} 
+                    Q ${add(i(d)(0.5), perp(d, 0.1))}
+                    ${add(i(d)(0.9), perp(d, 0.02))}
+                `
+            })
+        ;
 
         node
             .attr("x", d => d.x)
@@ -159,9 +173,9 @@ function update()
 
 
 
-function addLink(source, target)
+function addLink(source, target, linkId)
 {
-    let newLink = { "source": source, "target": target };
+    let newLink = { "source": source, "target": target, "linkId": linkId };
 
     let found = false;
 
@@ -204,8 +218,7 @@ If (x in linkFrom[y]) then there is a link to the page y in the page x.
 linkFrom[y] contain all the pages with links to page y.
 */
 
-
-function loadWikiPage(titel)
+function loadWikiPage(titel, scrollTo)
 {
     titel = titel.replace(/_/g, ' ');
 
@@ -227,8 +240,6 @@ function loadWikiPage(titel)
             .attr("class", "firstHeading")
             .attr("id", "firstHeading")
             .html(titel);
-
-        let shouldUpdate = false;
         
         iframe.selectAll("a")
             .each(function() {
@@ -240,13 +251,13 @@ function loadWikiPage(titel)
 
                 if(mat != null && linkTitel != titel)
                 {
-                    d3.select(this).attr("href", `javascript:loadWikiPage("${linkTitel}");`);
+                    d3.select(this).attr("href", `javascript:loadWikiPage(\`${linkTitel}\`);`);
 
                     if(newPage)
                     {
                         if(dataNodes.has(linkTitel))
                         {
-                            shouldUpdate |= addLink(titel, linkTitel);
+                            addLink(titel, linkTitel, d3.select(this).attr("id"));
                         }
 
                         if(linkTitel in linkFrom)
@@ -258,12 +269,16 @@ function loadWikiPage(titel)
                             {
                                 console.log(linkTitel);
                             }*/
-
-                            linkFrom[linkTitel].add(titel);
                         }
                         else
                         {
-                            linkFrom[linkTitel] = new Set([titel]);
+                            linkFrom[linkTitel] = {};
+                        }
+
+                        if(!(titel in linkFrom[linkTitel]))
+                        {
+                            linkFrom[linkTitel][titel] = d3.select(this).attr("id");
+                            console.log(`set linkFrom[${linkTitel}][${titel}] = ${linkFrom[linkTitel][titel]}`);
                         }
                     }
                 }
@@ -285,8 +300,9 @@ function loadWikiPage(titel)
         dataNodes.forEach((e) => {
             if(e in linkFrom)
             {
-                linkFrom[e].forEach((l) => {
-                    addLink(l, e);
+                Object.entries(linkFrom[e]).forEach(l => {
+                    console.log(`get linkFrom[${e}][${l[0]}] = ${l[1]}`);
+                    addLink(l[0], e, l[1]);
                 });
             }
         });
@@ -297,10 +313,23 @@ function loadWikiPage(titel)
         }
 
         nodeColor(titel);
+
+        if(typeof scrollTo !== 'undefined')
+        {
+            d3.select(`#${scrollTo}`)
+                .style("background-color", "yellow")
+                .node().scrollIntoView()
+            ;
+
+        }
+        else
+        {
+            iframeContainer.node().scrollTop = 0;
+        }
     });
 }
 
-//loadWikiPage("Geometry");
+loadWikiPage("Glider (Conway's Life)");
 
 
 
