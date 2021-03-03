@@ -53,7 +53,7 @@ height = 600;
 width = 600;
 
 const dataLinks = {};
-const dataNodes = new Set();
+const dataNodes = {};
 
 
 
@@ -104,21 +104,20 @@ let node = container.append("g")
 ;
 
 
-let nodes = [];
-
 function update()
 {
     let links = Object.values(dataLinks);
+    let nodes = Object.values(dataNodes);
 
     simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links).id(d => d.id).distance(200))
-        .force("charge", d3.forceManyBody().strength(-1200))
-        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("charge", d3.forceManyBody().strength(-1500))
+        //.force("center", d3.forceCenter(width / 2, height / 2))
         /*.force('collision', d3.forceCollide().radius(function(d) {
             return getWidth(d.id, 32, "Arial") / 2.;
         }))*/
-        //.force("x", d3.forceX(width / 2))
-        //.force("y", d3.forceY(height / 2))
+        .force("x", d3.forceX(width / 2))
+        .force("y", d3.forceY(height / 2))
     ;
 
     //console.log(links);
@@ -171,14 +170,17 @@ function update()
 }
 
 
-
+function findNode(id)
+{
+    return dataNodes[id];
+}
 
 function addLink(source, target, linkId)
 {
     let key = `${source}[to]${target}`;
     if(!(key in dataLinks))
-    {        
-        dataLinks[key] = { "source": source, "target": target, "linkId": linkId };
+    {
+        dataLinks[key] = { "source": (source), "target": (target), "linkId": linkId };
 
         return true;
     }
@@ -217,15 +219,15 @@ function loadWikiPage(titel, scrollTo)
 {
     titel = titel.replace(/_/g, ' ');
 
-    let newPage = !dataNodes.has(titel);
-    // Can also do dataNodes.add(titel); hare and then newPage = lastSize != newSize.
-
     let pr = null;
 
-    if(newPage)
+    if(!(titel in dataNodes))
     {
         pr = d3.html(`https://en.wikipedia.org/api/rest_v1/page/html/${titel}`).then(function(data)
         {
+            if(simulation != null) simulation.stop();
+            dataNodes[titel] = { "id": titel };  // , "x": 0, "y": 0, "vx": 0, "vy": 0
+
             if(currentPage != null) currentPage.style("display", "none");
 
             currentPage = pageContainer.append("div")
@@ -286,7 +288,7 @@ function loadWikiPage(titel, scrollTo)
                             //console.log(`set linkFrom[${linkTitel}][${titel}] = ${id}`);
                         }
                     
-                        if(dataNodes.has(linkTitel))
+                        if(linkTitel in dataNodes)
                         {
                             addLink(titel, linkTitel, id);
                             //console.log(id);
@@ -299,10 +301,7 @@ function loadWikiPage(titel, scrollTo)
                 });
         })
         .then(function() {
-            dataNodes.add(titel);
-            nodes.push({ "id": titel });
-
-            dataNodes.forEach((e) => {
+            Object.keys(dataNodes).forEach((e) => {
                 if(e in linkFrom)
                 {
                     Object.entries(linkFrom[e]).forEach(l => {
@@ -360,11 +359,26 @@ function loadWikiPage(titel, scrollTo)
 
 
 
-//d3.html(`https://en.wikipedia.org/wiki/Special:Search`).then(function(data)
-//{
-    //data = `<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"search box","href":"./Template:Search_box"},"params":{},"i":0}}]}' id="mwAQ">
-    //<div class="mw-inputbox-centered" style="" typeof="mw:Extension/inputbox" about="#mwt3" data-mw='{"name":"inputbox","attrs":{},"body":{"extsrc":"\nbgcolor=transparent\ntype=fulltext\nprefix=Main Page/\nbreak=no\nwidth=22\nsearchbuttonlabel=Search\n"}}'><form name="searchbox" class="searchbox" action="/wiki/Special:Search"><input class="mw-searchInput searchboxInput mw-ui-input mw-ui-input-inline" name="search" type="text" value="" placeholder="" size="22" dir="ltr"/><input type="hidden" value="Main Page/" name="prefix"/> <input type="submit" name="fulltext" class="mw-ui-button" value="Search"/><input type="hidden" value="Search" name="fulltext"/></form></div>
-    //</div>`;
-    //searchDiv.node().innerHTML = data;//'';
-    //searchDiv.node().append(data.documentElement);
-//});
+
+
+d3.select("#inputTitel").on("input", function(e) {
+    let searchString = e.target.value;
+    if(searchString == "") return;
+
+    d3.json(`https://en.wikipedia.org/w/api.php?action=opensearch&origin=*&search=${searchString}`)//(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${searchString}&limit=10`)
+        .then(function(data)
+        {
+            let suggestions = d3.select("#suggestions");
+            suggestions.html("");
+            data[1].forEach(searchRes => {
+                suggestions.append("a")
+                    .attr("class", "suggestion")
+                    .html(searchRes)
+                    .on("click", () => {
+                        loadWikiPage(searchRes);
+                        searchButtonClick();
+                    })
+                ;
+            });
+        });
+});

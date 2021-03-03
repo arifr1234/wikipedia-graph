@@ -117,9 +117,9 @@
         <div id="leftDiv">
             <div id="navbar" style="background: #f6f6f6; padding: 5px">
                 <button id="searchViewButton"></button>
-                <button id="backButton"></button>
-                <button id="forwardButton"></button>
-                <a id="openOnWikipediaA" target="_blank">
+                <button id="backButton" class="page"></button>
+                <button id="forwardButton" class="page"></button>
+                <a id="openOnWikipediaA" target="_blank" class="page">
                     <button id="openOnWikipediaButton"></button>
                 </a>
             </div>
@@ -167,15 +167,19 @@
                 {
                     changePage(currentPage, searchDiv);
 
-                    //searchButton.html("View");
-                    searchButton.attr("class", "view");
+                    searchButton.classed("view", true);
+                    searchButton.classed("search", false);
+
+                    d3.selectAll("#navbar > .page").style("display", "none");
                 }
                 else
                 {
                     changePage(searchDiv, currentPage);
 
-                    //searchButton.html("");//("Search");
-                    searchButton.attr("class", "search");
+                    searchButton.classed("search", true);
+                    searchButton.classed("view", false);
+
+                    d3.selectAll("#navbar > .page").style("display", null);
                 }
             }
 
@@ -184,38 +188,6 @@
             searchButton.on("click", searchButtonClick);
         </script>
 
-        <script>
-            d3.select("#inputTitel").on("input", function(e) {
-                let searchString = e.target.value;
-                if(searchString == "") return;
-
-                d3.json(`https://en.wikipedia.org/w/api.php?action=opensearch&origin=*&search=${searchString}`)//(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${searchString}&limit=10`)
-                    .then(function(data)
-                    {
-                        let suggestions = d3.select("#suggestions");
-                        suggestions.html("");
-                        data[1].forEach(searchRes => {
-                            suggestions.append("a")
-                                .attr("class", "suggestion")
-                                .html(searchRes)
-                                .on("click", () => {
-                                    loadWikiPage(searchRes);
-                                    searchButtonClick();
-                                })
-                            ;
-                        });
-                    });
-            });
-        </script>
-
         <script src="index.js"></script>
-
-        <script>
-            // TODO: navigation.
-            d3.select("#backButton").on("click", function()
-            {
-
-            });
-        </script>
     </body>
 </html>

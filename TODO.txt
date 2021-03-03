@@ -13,4 +13,4 @@
 #  Navigate search results with arrows.
 #V Scroll up on page load.
 #  Random article.
-#  Open on wikipedia.
+#V Open on wikipedia.
