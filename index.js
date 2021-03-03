@@ -201,7 +201,7 @@ function nodeColor(highlightTitel)
 
 function validId(titel)
 {
-    return titel.replace(/ /g, '_').replace(/^[^a-z]|[^\w:.-]/gi, m => m.charCodeAt(0));
+    return titel.replace(/ /g, '_').replace(/^[^a-z]|[^\w:-]/gi, m => m.charCodeAt(0));
 }
 
 
@@ -258,12 +258,6 @@ function loadWikiPage(titel, scrollTo)
                     {
                         d3.select(this).attr("href", `javascript:loadWikiPage(\`${linkTitel}\`);`);
 
-                    
-                        if(dataNodes.has(linkTitel))
-                        {
-                            addLink(titel, linkTitel, d3.select(this).attr("id"));
-                        }
-
                         if(linkTitel in linkFrom)
                         {
                             /*let linksFromLinkTitel = linkFrom[linkTitel];
@@ -279,16 +273,23 @@ function loadWikiPage(titel, scrollTo)
                             linkFrom[linkTitel] = {};
                         }
 
+                        let id = d3.select(this).attr("id");
+
                         if(!(titel in linkFrom[linkTitel]))
                         {
-                            let id = d3.select(this).attr("id");
                             if(id == null)
                             {
                                 id = validId(titel + " to " + linkTitel);
                                 d3.select(this).attr("id", id);
                             }
                             linkFrom[linkTitel][titel] = id;
-                            //console.log(`set linkFrom[${linkTitel}][${titel}] = ${linkFrom[linkTitel][titel]}`);
+                            //console.log(`set linkFrom[${linkTitel}][${titel}] = ${id}`);
+                        }
+                    
+                        if(dataNodes.has(linkTitel))
+                        {
+                            addLink(titel, linkTitel, id);
+                            //console.log(id);
                         }
                     }
                     else
@@ -336,6 +337,8 @@ function loadWikiPage(titel, scrollTo)
 
         if(typeof scrollTo !== 'undefined')
         {
+            //console.log(scrollTo);
+
             d3.select(`#${validId(titel)} #${scrollTo}`)
                 .style("background-color", "yellow")
                 .node().scrollIntoView()
@@ -348,7 +351,7 @@ function loadWikiPage(titel, scrollTo)
     });
 }
 
-loadWikiPage("Glider (Conway's Life)");
+//loadWikiPage("Glider (Conway's Life)");
 
 
 

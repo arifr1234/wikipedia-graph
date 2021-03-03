@@ -19,6 +19,7 @@
             #body
             {
                 display: flex;
+                overflow: hidden;
             }
 
             #svgcontainer
@@ -144,7 +145,7 @@
                 if(newPage != null) newPage.style("display", null);
             }
 
-            let isSearch = true;//false;
+            let isSearch = false;
 
             function searchButtonClick() {
                 isSearch = !isSearch;
