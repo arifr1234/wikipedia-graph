@@ -215,7 +215,7 @@ linkFrom[y] contain all the pages with links to page y.
 
 let pageContainer = d3.select("#pageContainer");
 
-function loadWikiPage(titel, scrollTo)
+function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
 {
     titel = titel.replace(/_/g, ' ');
 
@@ -334,7 +334,18 @@ function loadWikiPage(titel, scrollTo)
         ;
 
         nodeColor(titel);
+
         d3.select("#openOnWikipediaA").attr("href", `./${titel}`);
+
+        backStack.push(titel);
+        backButton.property('disabled', backStack.length < 2);
+
+        if(eraseForwardQueue)
+        {
+            forwardQueue = [];
+            forwardButton.property('disabled', true);
+        }
+
 
         if(typeof scrollTo !== 'undefined')
         {
@@ -381,4 +392,30 @@ d3.select("#inputTitel").on("input", function(e) {
                 ;
             });
         });
+});
+
+
+
+let backStack = [];
+let forwardQueue = [];
+
+let backButton = d3.select("#backButton");
+let forwardButton = d3.select("#forwardButton");
+
+backButton.on("click", () => {
+    forwardQueue.push(backStack.pop());
+
+    let page = backStack.pop();
+
+    loadWikiPage(page, undefined, false);
+
+    forwardButton.property('disabled', false);
+});
+
+forwardButton.on("click", () => {
+    let page = forwardQueue.pop();
+
+    loadWikiPage(page, undefined, false);
+
+    forwardButton.property('disabled', forwardQueue.length < 1);
 });

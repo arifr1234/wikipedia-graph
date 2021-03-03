@@ -117,8 +117,8 @@
         <div id="leftDiv">
             <div id="navbar" style="background: #f6f6f6; padding: 5px">
                 <button id="searchViewButton"></button>
-                <button id="backButton" class="page"></button>
-                <button id="forwardButton" class="page"></button>
+                <button id="backButton" disabled class="page"></button>
+                <button id="forwardButton" disabled class="page"></button>
                 <a id="openOnWikipediaA" target="_blank" class="page">
                     <button id="openOnWikipediaButton"></button>
                 </a>
@@ -154,8 +154,16 @@
 
             function changePage(oldPage, newPage)
             {
-                if(oldPage != null) oldPage.style("display", "none");
-                if(newPage != null) newPage.style("display", null);
+                if(oldPage != null){
+                    oldPage.style("display", "none");
+                    console.log(`${oldPage.attr("id")}.display = ${oldPage.style("display")}, should be none`);
+                }
+                else console.log("oldPage is null.");
+                if(newPage != null){
+                    newPage.style("display", "unset");
+                    console.log(`${newPage.attr("id")}.display = ${newPage.style("display")}, should be unset`);
+                }
+                else console.log("newPage is null.");
             }
 
             let isSearch = false;

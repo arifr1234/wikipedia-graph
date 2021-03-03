@@ -8,7 +8,8 @@
 #V Better Search.
 #  Node delete.
 #V Currently viewed page indecation.
-#  Navigation buttons.
+#V Navigation buttons.
+    #? Fix page disappearance bug.
 #V Page cache.
 #  Navigate search results with arrows.
 #V Scroll up on page load.
