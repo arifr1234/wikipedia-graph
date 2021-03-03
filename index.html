@@ -55,11 +55,16 @@
                 overflow: auto;
             }
 
-            #nevbar > *
+            #navbar > *
             {
                 margin: 5px;
 
                 cursor: pointer;
+
+                display: inline-block;
+            }
+            #navbar button
+            {
                 height: 30px;
                 width: 30px;
 
@@ -85,6 +90,11 @@
                 background: no-repeat center / 1.5em url(./rightArrow.svg);
             }
 
+            #openOnWikipediaButton
+            {
+                background: no-repeat center / 2em url(https://upload.wikimedia.org/wikipedia/commons/5/5a/Wikipedia%27s_W.svg);
+            }
+
             .suggestion
             {
                 display: block;
@@ -105,10 +115,13 @@
     </head>
     <body id="body">
         <div id="leftDiv">
-            <div id="nevbar" style="background: #f6f6f6; padding: 5px">
+            <div id="navbar" style="background: #f6f6f6; padding: 5px">
                 <button id="searchViewButton"></button>
                 <button id="backButton"></button>
                 <button id="forwardButton"></button>
+                <a id="openOnWikipediaA" target="_blank">
+                    <button id="openOnWikipediaButton"></button>
+                </a>
             </div>
             <hr style="margin: 0px; height: 0.5px;"/>
             <div id="pageContainer">
@@ -198,7 +211,7 @@
         <script src="index.js"></script>
 
         <script>
-            // TODO: nevigation.
+            // TODO: navigation.
             d3.select("#backButton").on("click", function()
             {
 

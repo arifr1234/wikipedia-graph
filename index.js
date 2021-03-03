@@ -331,9 +331,11 @@ function loadWikiPage(titel, scrollTo)
         currentPage.selectAll("a")
             .each(function() {
                 d3.select(this).style("background-color", null);
-            });
+            })
+        ;
 
         nodeColor(titel);
+        d3.select("#openOnWikipediaA").attr("href", `./${titel}`);
 
         if(typeof scrollTo !== 'undefined')
         {
