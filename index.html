@@ -54,14 +54,37 @@
                 overflow: auto;
             }
 
-            #nevButton
+            #nevbar > *
             {
-                padding: 5px;
+                margin: 5px;
 
-                margin: 10px;
+                cursor: pointer;
+                height: 30px;
+                width: 30px;
+
+                border-style: solid; /* hidden */
+                border-radius: 3px;
+                border-width: 1.5px;
+            }
+            #searchViewButton.search
+            {
+                background: no-repeat center url(https://en.wikipedia.org/w/skins/Vector/resources/skins.vector.styles/images/search.svg);
+            }
+            #searchViewButton.view
+            {
+                background: no-repeat center / 1.5em url(https://en.wikipedia.org/w/resources/src/mediawiki.skinning/images/magnify-clip-ltr.svg); /* document-ltr.svg */
             }
 
-            .suggestion 
+            #backButton
+            {
+                background: no-repeat center / 1.5em url(./leftArrow.svg);
+            }
+            #forwardButton
+            {
+                background: no-repeat center / 1.5em url(./rightArrow.svg);
+            }
+
+            .suggestion
             {
                 display: block;
                 /*border-style: solid;*/
@@ -81,19 +104,24 @@
     </head>
     <body id="body">
         <div id="leftDiv">
-            <button id="nevButton"></button>
+            <div id="nevbar" style="background: #f6f6f6; padding: 5px">
+                <button id="searchViewButton"></button>
+                <button id="backButton"></button>
+                <button id="forwardButton"></button>
+            </div>
+            <hr style="margin: 0px; height: 0.5px;"/>
             <div id="pageContainer">
                 <div id="iframe"></div>
                 <div id="searchDiv">
                     <div style="margin: 10px;">
-                        <input id="inputTitel" type="text" style="margin: 5px;" />
+                        <input id="inputTitel" autocomplete="off" type="text" style="margin: 5px;" />
                         <div id="suggestions"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <a id="dragBar" style="cursor:col-resize; width:10px; background-color: lightblue;"></a>
+        <a id="dragBar" style="cursor:col-resize; width:10px; background-color: #a2a9b1;"></a>
         <div id="svgcontainer"></div>
 
         <script>
@@ -108,7 +136,7 @@
             let currentPage = null;
             let searchDiv = d3.select("#searchDiv");
 
-            let nevButton = d3.select("#nevButton");
+            let searchButton = d3.select("#searchViewButton");
 
             function changePage(oldPage, newPage)
             {
@@ -118,26 +146,28 @@
 
             let isSearch = true;//false;
 
-            function nevButtonClick() {
+            function searchButtonClick() {
                 isSearch = !isSearch;
 
                 if(isSearch)
                 {
                     changePage(currentPage, searchDiv);
 
-                    nevButton.html("View");
+                    //searchButton.html("View");
+                    searchButton.attr("class", "view");
                 }
                 else
                 {
                     changePage(searchDiv, currentPage);
 
-                    nevButton.html("Search");
+                    //searchButton.html("");//("Search");
+                    searchButton.attr("class", "search");
                 }
             }
 
-            nevButtonClick();
+            searchButtonClick();
 
-            nevButton.on("click", nevButtonClick);
+            searchButton.on("click", searchButtonClick);
         </script>
 
         <script>
@@ -156,6 +186,7 @@
                                 .html(searchRes)
                                 .on("click", () => {
                                     loadWikiPage(searchRes);
+                                    searchButtonClick();
                                 })
                             ;
                         });
@@ -164,5 +195,13 @@
         </script>
 
         <script src="index.js"></script>
+
+        <script>
+            // TODO: nevigation.
+            d3.select("#backButton").on("click", function()
+            {
+
+            });
+        </script>
     </body>
 </html>
