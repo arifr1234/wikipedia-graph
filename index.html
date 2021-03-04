@@ -98,9 +98,22 @@
             .suggestion
             {
                 display: block;
-                /*border-style: solid;*/
                 margin: 5px;
-                border-color: black;
+
+                border-style: solid;
+                border-width: 1.5px;
+                border-color: transparent;
+            }
+
+            .selected
+            {
+                border-color: #a2a9b1;
+            }
+
+            #randmArticle
+            {
+                display: inline-block;
+                margin: 5px;
             }
     
             .noselect {
@@ -128,8 +141,11 @@
                 <div id="iframe"></div>
                 <div id="searchDiv">
                     <div style="margin: 10px;">
-                        <input id="inputTitel" autocomplete="off" type="text" style="margin: 5px;" />
-                        <div id="suggestions"></div>
+                        <div style="float: left;">
+                            <input id="inputTitel" placeholder="Search Wikipedia" autocomplete="off" type="text" style="margin: 5px;" />
+                            <div id="suggestions"></div>
+                        </div>
+                        <a id="randmArticle">Random Article</a>
                     </div>
                 </div>
             </div>
@@ -147,6 +163,50 @@
         </script>
 
         <script>
+            let selectedSearchRes = null;
+
+            let inputTitel = d3.select("#inputTitel");
+            let suggestions = d3.select("#suggestions").node();
+
+            function keyDown(e)
+            {
+                if(e.key === "Enter")
+                {
+                    selectedSearchRes.classList.remove("selected");
+
+                    loadWikiPage(selectedSearchRes.innerHTML);
+                    searchButtonClick();
+                }
+
+                if(selectedSearchRes == null)
+                {
+                    switch (e.key) {
+                        case "ArrowUp": selectedSearchRes = suggestions.lastChild; break;
+                        case "ArrowDown": selectedSearchRes = suggestions.firstChild; break;
+                    }
+                }
+                else
+                {
+                    selectedSearchRes.classList.remove("selected");
+                    switch (e.key) {
+                        case "ArrowUp": selectedSearchRes = selectedSearchRes.previousSibling; break;
+                        case "ArrowDown": selectedSearchRes = selectedSearchRes.nextSibling; break;
+                    }
+                }
+                if(selectedSearchRes != null) selectedSearchRes.classList.add("selected");
+            }
+
+            inputTitel.on("focus", () => {
+                inputTitel.on("keydown", keyDown);
+            });
+
+            inputTitel.on("blur", () => {
+                inputTitel.on("keydown", null);
+            });
+
+        </script>
+
+        <script>
             let currentPage = null;
             let searchDiv = d3.select("#searchDiv");
 
@@ -156,12 +216,12 @@
             {
                 if(oldPage != null){
                     oldPage.style("display", "none");
-                    console.log(`${oldPage.attr("id")}.display = ${oldPage.style("display")}, should be none`);
+                    //console.log(`${oldPage.attr("id")}.display = ${oldPage.style("display")}, should be none`);
                 }
                 else console.log("oldPage is null.");
                 if(newPage != null){
                     newPage.style("display", "unset");
-                    console.log(`${newPage.attr("id")}.display = ${newPage.style("display")}, should be unset`);
+                    //console.log(`${newPage.attr("id")}.display = ${newPage.style("display")}, should be unset`);
                 }
                 else console.log("newPage is null.");
             }
@@ -188,6 +248,8 @@
                     searchButton.classed("view", false);
 
                     d3.selectAll("#navbar > .page").style("display", null);
+
+                    selectedSearchRes = null;
                 }
             }
 

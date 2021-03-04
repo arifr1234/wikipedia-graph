@@ -367,21 +367,21 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
 
 
 
-
-
-
-
-
-d3.select("#inputTitel").on("input", function(e) {
+function titelOnInput(e)
+{
     let searchString = e.target.value;
-    if(searchString == "") return;
 
-    d3.json(`https://en.wikipedia.org/w/api.php?action=opensearch&origin=*&search=${searchString}`)//(`https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${searchString}&limit=10`)
-        .then(function(data)
+    let pr = null;
+    
+    if(searchString == "") pr = Promise.resolve().then(() => { return pagesFeed; });
+    else pr = d3.json(`https://en.wikipedia.org/w/api.php?action=opensearch&origin=*&limit=10&search=${searchString}`)  // `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${searchString}&limit=10`
+        .then(data => data[1]);
+
+    pr.then(function(data)
         {
             let suggestions = d3.select("#suggestions");
             suggestions.html("");
-            data[1].forEach(searchRes => {
+            data.forEach(searchRes => {
                 suggestions.append("a")
                     .attr("class", "suggestion")
                     .html(searchRes)
@@ -391,8 +391,55 @@ d3.select("#inputTitel").on("input", function(e) {
                     })
                 ;
             });
-        });
+        })
+    ;
+}
+inputTitel.on("input", titelOnInput);
+
+
+
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+let pagesFeed = null;
+d3.json(`https://en.wikipedia.org/api/rest_v1/feed/featured/${yyyy}/${mm}/${dd}`)
+    .then((data) => 
+    { 
+        pagesFeed = [
+            data.tfa,
+            data.mostread.articles[0],
+            data.mostread.articles[1],
+            data.mostread.articles[2],
+            data.mostread.articles[3],
+            data.news[0].links[0],
+            data.news[1].links[0],
+            data.onthisday[0].pages[0],
+            data.onthisday[1].pages[0],
+            data.onthisday[2].pages[0]
+        ];
+
+        pagesFeed = pagesFeed.map(v => v.displaytitle /* normalizedtitle */)
+    })
+    .then(() => titelOnInput({ "target": { "value": "" } }))
+;
+
+
+d3.select("#randmArticle").on("click", () => {
+    d3.json(`https://en.wikipedia.org/api/rest_v1/page/random/title`)//(`https://www.mediawiki.org/w/api.php?action=query&list=random&rnnamespace=0`)
+        .then((data) => 
+        {
+            loadWikiPage(data.items[0].title);
+            searchButtonClick();
+        })
+    ;
 });
+
+
+
+
+
 
 
 

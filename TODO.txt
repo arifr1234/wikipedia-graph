@@ -11,7 +11,8 @@
 #V Navigation buttons.
     #? Fix page disappearance bug.
 #V Page cache.
-#  Navigate search results with arrows.
+#V Navigate search results with arrows.
 #V Scroll up on page load.
-#  Random article.
+#V Random article.
 #V Open on wikipedia.
+#  Help/how to use.
