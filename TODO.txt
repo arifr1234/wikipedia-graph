@@ -19,4 +19,4 @@
 #  Share graph using link.
 #V Link to github.
 #V Text on hover.
-#  Links to section.
+#V Links to section.

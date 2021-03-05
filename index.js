@@ -252,46 +252,53 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
                 .each(function() {
                     let last = d3.select(this).attr("href");
 
-                    let mat = last.match(/^\.\/([^#]+)/);
+                    let mat = last.match(/^(?:(?:(?:https?:)?\/\/en\.wikipedia\.org\/wiki)|\.)\/([^#/]+)(?:#(.+))?/);
+                    //  /^(?:(?:(?:https?:)?\/\/en\.wikipedia\.org\/wiki)|\.)\/([^#/]+)(?:#(.+))?/
+                    //  /^(?:(?:https?:\/\/en\.wikipedia\.org\/wiki)|\.)\/([^#/]+)(?:#(.+))?/
+                    //  /^\.\/([^#]+)(#(.+))?/
+                    //  /^\.\/([^#]+)/
 
                     const linkTitel = (mat != null ? mat[1].replace(/_/g, ' ') : "");
 
-                    if(mat != null && linkTitel != titel)
+                    if(mat != null)
                     {
-                        d3.select(this).attr("href", `javascript:loadWikiPage(\`${linkTitel}\`);`);
+                        d3.select(this).attr("href", `javascript:loadWikiPage(\`${linkTitel}\`, ${ typeof mat[2] === 'undefined' ? 'undefined' : `\`${mat[2]}\`` });`);
 
-                        if(linkTitel in linkFrom)
+                        if(linkTitel != titel)
                         {
-                            /*let linksFromLinkTitel = linkFrom[linkTitel];
-                            let lastSize = linksFromLinkTitel.size;
-                            linksFromLinkTitel.add(titel);
-                            if(lastSize == 1 && linksFromLinkTitel.size == 2)
+                            if(linkTitel in linkFrom)
                             {
-                                console.log(linkTitel);
-                            }*/
-                        }
-                        else
-                        {
-                            linkFrom[linkTitel] = {};
-                        }
-
-                        let id = d3.select(this).attr("id");
-
-                        if(!(titel in linkFrom[linkTitel]))
-                        {
-                            if(id == null)
-                            {
-                                id = validId(titel + " to " + linkTitel);
-                                d3.select(this).attr("id", id);
+                                /*let linksFromLinkTitel = linkFrom[linkTitel];
+                                let lastSize = linksFromLinkTitel.size;
+                                linksFromLinkTitel.add(titel);
+                                if(lastSize == 1 && linksFromLinkTitel.size == 2)
+                                {
+                                    console.log(linkTitel);
+                                }*/
                             }
-                            linkFrom[linkTitel][titel] = id;
-                            //console.log(`set linkFrom[${linkTitel}][${titel}] = ${id}`);
-                        }
-                    
-                        if(linkTitel in dataNodes)
-                        {
-                            addLink(titel, linkTitel, id);
-                            //console.log(id);
+                            else
+                            {
+                                linkFrom[linkTitel] = {};
+                            }
+                            
+                            let id = d3.select(this).attr("id");
+
+                            if(!(titel in linkFrom[linkTitel]))
+                            {
+                                if(id == null)
+                                {
+                                    id = validId(titel + " to " + linkTitel);
+                                    d3.select(this).attr("id", id);
+                                }
+                                linkFrom[linkTitel][titel] = id;
+                                //console.log(`set linkFrom[${linkTitel}][${titel}] = ${id}`);
+                            }
+                            
+                            if(linkTitel in dataNodes)
+                            {
+                                addLink(titel, linkTitel, id);
+                                //console.log(id);
+                            }
                         }
                     }
                     else
@@ -327,17 +334,15 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
     }
 
     pr.then(function() {
-        currentPage.selectAll("a")
-            .each(function() {
-                d3.select(this).style("background-color", null);
-            })
+        currentPage.selectAll(".highlight-yellow")
+            .classed("highlight-yellow", false)
         ;
 
         nodeColor(titel);
 
-        d3.select("#openOnWikipediaA").attr("href", `./${titel}`);
+        d3.select("#openInWikipediaA").attr("href", `./${titel}`);
 
-        backStack.push(titel);
+        backStack.push([titel, scrollTo]);
         backButton.property('disabled', backStack.length < 2);
 
         if(eraseForwardQueue)
@@ -351,8 +356,8 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
         {
             //console.log(scrollTo);
 
-            d3.select(`#${validId(titel)} #${scrollTo}`)
-                .style("background-color", "yellow")
+            currentPage.select(`#${scrollTo}`)
+                .classed("highlight-yellow", true)
                 .node().scrollIntoView()
             ;
         }
@@ -468,16 +473,14 @@ backButton.on("click", () => {
     forwardQueue.push(backStack.pop());
 
     let page = backStack.pop();
-
-    loadWikiPage(page, undefined, false);
+    loadWikiPage(page[0], page[1], false);
 
     forwardButton.property('disabled', false);
 });
 
 forwardButton.on("click", () => {
     let page = forwardQueue.pop();
-
-    loadWikiPage(page, undefined, false);
+    loadWikiPage(page[0], page[1], false);
 
     forwardButton.property('disabled', forwardQueue.length < 1);
 });
