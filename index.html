@@ -90,9 +90,14 @@
                 background: no-repeat center / 1.5em url(./rightArrow.svg);
             }
 
-            #openOnWikipediaButton
+            #openInWikipediaButton
             {
                 background: no-repeat center / 2em url(https://upload.wikimedia.org/wikipedia/commons/5/5a/Wikipedia%27s_W.svg);
+            }
+
+            #helpButton
+            {
+                background: no-repeat center / 1.25em url(https://upload.wikimedia.org/wikipedia/commons/b/b2/OOjs_UI_icon_help-ltr.svg);
             }
 
             .suggestion
@@ -114,6 +119,7 @@
             {
                 display: inline-block;
                 margin: 5px;
+                margin-left: 15px;
             }
     
             .noselect {
@@ -130,10 +136,13 @@
         <div id="leftDiv">
             <div id="navbar" style="background: #f6f6f6; padding: 5px">
                 <button id="searchViewButton"></button>
-                <button id="backButton" disabled class="page"></button>
-                <button id="forwardButton" disabled class="page"></button>
-                <a id="openOnWikipediaA" target="_blank" class="page">
-                    <button id="openOnWikipediaButton"></button>
+                <button id="backButton" title="Back" disabled class="page"></button>
+                <button id="forwardButton" title="Forward" disabled class="page"></button>
+                <a id="openInWikipediaA" title="Open in Wikipedia" target="_blank" class="page">
+                    <button id="openInWikipediaButton"></button>
+                </a>
+                <a id="helpA" href="https://github.com/arifr1234/wikipedia-graph/blob/master/README.md" title="Help/Info" target="_blank">
+                    <button id="helpButton"></button>
                 </a>
             </div>
             <hr style="margin: 0px; height: 0.5px;"/>
@@ -152,7 +161,15 @@
         </div>
 
         <a id="dragBar" style="cursor:col-resize; width:10px; background-color: #a2a9b1;"></a>
+        
+        
         <div id="svgcontainer"></div>
+
+        <a style="position: absolute; top: 0px; right: 0px;" href="https://github.com/arifr1234/wikipedia-graph">
+            <img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_white_ffffff.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1">
+        </a>
+
+        
 
         <script>
             dragBarWidth = d3.select("#dragBar").node().getBoundingClientRect().width;
@@ -238,6 +255,8 @@
                     searchButton.classed("view", true);
                     searchButton.classed("search", false);
 
+                    searchButton.attr("title", "Article")
+
                     d3.selectAll("#navbar > .page").style("display", "none");
                 }
                 else
@@ -246,6 +265,8 @@
 
                     searchButton.classed("search", true);
                     searchButton.classed("view", false);
+
+                    searchButton.attr("title", "Search")
 
                     d3.selectAll("#navbar > .page").style("display", null);
 

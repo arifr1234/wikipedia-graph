@@ -407,7 +407,7 @@ let pagesFeed = null;
 d3.json(`https://en.wikipedia.org/api/rest_v1/feed/featured/${yyyy}/${mm}/${dd}`)
     .then((data) => 
     { 
-        pagesFeed = [
+        /* pagesFeed = [
             data.tfa,
             data.mostread.articles[0],
             data.mostread.articles[1],
@@ -418,9 +418,24 @@ d3.json(`https://en.wikipedia.org/api/rest_v1/feed/featured/${yyyy}/${mm}/${dd}`
             data.onthisday[0].pages[0],
             data.onthisday[1].pages[0],
             data.onthisday[2].pages[0]
-        ];
+        ]; */
 
-        pagesFeed = pagesFeed.map(v => v.displaytitle /* normalizedtitle */)
+        let mostread = "mostread" in data ? data.mostread.articles.map(d => d.normalizedtitle) : [];
+        let news = "news" in data ? data.news.map(d => d.links[0].normalizedtitle) : [];
+        let onthisday = "onthisday" in data ? data.onthisday.map(d => d.pages[0].normalizedtitle) : [];
+
+        pagesFeed = [data.tfa.normalizedtitle];
+
+        let mostreadNum = Math.min(4, mostread.length);
+        Array.prototype.push.apply(pagesFeed, mostread.slice(0, mostreadNum));
+
+        let newsNum = Math.min(2, news.length);
+        Array.prototype.push.apply(pagesFeed, news.slice(0, newsNum));
+
+        let onthisdayNum = Math.min(3, onthisday.length);
+        Array.prototype.push.apply(pagesFeed, onthisday.slice(0, onthisdayNum));
+
+        Array.prototype.push.apply(pagesFeed, mostread.slice(mostreadNum, mostreadNum + 10 - pagesFeed.length));
     })
     .then(() => titelOnInput({ "target": { "value": "" } }))
 ;

@@ -15,4 +15,8 @@
 #V Scroll up on page load.
 #V Random article.
 #V Open on wikipedia.
-#  Help/how to use.
+#V Help/how to use (github readme). 
+#  Share graph using link.
+#V Link to github.
+#V Text on hover.
+#  Links to section.
