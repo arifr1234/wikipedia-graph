@@ -4,6 +4,8 @@
         <script src="https://d3js.org/d3.v6.min.js"></script>
         <script src="./Vec2.js"></script>
 
+        <title>Wikipedia Graph</title>
+
 
         <link rel="stylesheet" href="//en.wikipedia.org/w/load.php?debug=false&lang=en&modules=mediawiki.legacy.commonPrint,shared|skins.vector.styles&only=styles&skin=vector&*">
 
@@ -28,7 +30,7 @@
 
                 display: flex;
 
-                font-size: xx-large;
+                font-size: x-large;
             }
 
             #leftDiv
@@ -100,6 +102,11 @@
                 background: no-repeat center / 1.25em url(https://upload.wikimedia.org/wikipedia/commons/b/b2/OOjs_UI_icon_help-ltr.svg);
             }
 
+            #shareButton
+            {
+                background: no-repeat center / 1.25em url(https://upload.wikimedia.org/wikipedia/commons/d/d9/VisualEditor_-_Icon_-_External-link.svg);
+            }
+
             .suggestion
             {
                 display: block;
@@ -149,6 +156,9 @@
                 <a id="helpA" href="https://github.com/arifr1234/wikipedia-graph/blob/master/README.md" title="Help/Info" target="_blank">
                     <button id="helpButton"></button>
                 </a>
+                <a id="shareA" title="Share network (use for saving)" target="_blank">
+                    <button id="shareButton"></button>
+                </a>
             </div>
             <hr style="margin: 0px; height: 0.5px;"/>
             <div id="pageContainer">
@@ -197,7 +207,7 @@
                     selectedSearchRes.classList.remove("selected");
 
                     loadWikiPage(selectedSearchRes.innerHTML);
-                    searchButtonClick();
+                    //searchButtonClick();
                 }
 
                 if(selectedSearchRes == null)
@@ -238,20 +248,18 @@
             {
                 if(oldPage != null){
                     oldPage.style("display", "none");
-                    //console.log(`${oldPage.attr("id")}.display = ${oldPage.style("display")}, should be none`);
                 }
-                else console.log("oldPage is null.");
                 if(newPage != null){
                     newPage.style("display", "unset");
-                    //console.log(`${newPage.attr("id")}.display = ${newPage.style("display")}, should be unset`);
                 }
-                else console.log("newPage is null.");
             }
 
-            let isSearch = false;
+            let isSearch = null;
 
-            function searchButtonClick() {
-                isSearch = !isSearch;
+            function searchButtonClick(val) {
+                if(typeof val === 'undefined') isSearch = !isSearch;
+                else isSearch = val;
+
 
                 if(isSearch)
                 {
@@ -279,9 +287,9 @@
                 }
             }
 
-            searchButtonClick();
+            searchButtonClick(true);
 
-            searchButton.on("click", searchButtonClick);
+            searchButton.on("click", (d) => { searchButtonClick(); });
         </script>
 
         <script src="index.js"></script>

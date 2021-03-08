@@ -74,7 +74,7 @@ svg.call(d3.zoom()
 
 
 /// Marker ///
-svg.append("svg:defs").append("svg:marker")
+/*svg.append("svg:defs").append("svg:marker")
     .attr("id", "triangle")
     .attr("refX", -2)
     .attr("refY", 0)
@@ -86,20 +86,24 @@ svg.append("svg:defs").append("svg:marker")
     .attr("d", "M -6 -6 6 0 -6 6 -3 0")
     .style("fill", "#999")
     .attr("opacity", 0.6)
-;
+;*/
 
 
 let container = svg.append("g");
 
 let link = container.append("g")
-    .attr("stroke", "#999")
-    .attr("stroke-opacity", 0.6)
+    .attr("stroke", "#333")
+    .attr("stroke-opacity", 0.3)
+    .attr("stroke-width", 5)
+    .attr("fill", "transparent")
+    .attr("stroke-linecap", "round")
     .selectAll("path")
 ;
 
 let node = container.append("g")
     .style("text-anchor", "middle")
     .style("dominant-baseline", "central")
+    .classed("noselect", true)
     .selectAll("text")
 ;
 
@@ -125,21 +129,25 @@ function update()
     link = link
         .data(links)
         .join("path")
-        .attr("marker-end", "url(#triangle)")
-        .attr("stroke-width", 5)
-        .attr("fill", "transparent")
+        //.attr("marker-end", "url(#triangle)")
         .on("click", (e, d) => {
             loadWikiPage(d.source.id, d.linkId);
             //console.log(d.linkId);
         })
     ;
+
+    link.each(function(d, i) {
+        d3.select(this).selectAll("title")
+            .data([links[i]])
+            .enter().append("title")
+            .html(d => `Link from "${d.source.id}" to "${d.target.id}"`);
+    });
     
 
     node = node
         .data(nodes)
         .join("text")
         .text(d => d.id)
-        .attr("class", "noselect")
         .call(drag(simulation))
         .on("click", (e, d) => {
             loadWikiPage(d.id);
@@ -149,16 +157,33 @@ function update()
     simulation.on("tick", () => {
         link
             .attr("d", (d) => {
-                let source = new Vec2(d.source.x, d.source.y);
-                let target = new Vec2(d.target.x, d.target.y);
+                const O = new Vec2(d.source.x, d.source.y);
+                const T = new Vec2(d.target.x, d.target.y);
 
-                let perp = target.subV(source);
-                perp = new Vec2(-perp.y, perp.x).normalize();
+                const U = T.subV(O).normalize();
+                const R = new Vec2(-U.y, U.x);
+
+                const RShift = R.mulS(6);
+                const UShift = U.mulS(20);
+                const centerShift = R.mulS(15);
+
+                const center = O.lerp(T, 0.5).addV(centerShift);
+
+                /*return `
+                    M ${source.lerp(target, 0.15).addV(R.mulS(6)).toArray()}
+                    Q ${source.lerp(target, 0.5).addV(R.mulS(18)).toArray()}
+                    ${source.lerp(target, 0.85).addV(R.mulS(6)).toArray()}
+                `*/
 
                 return `
-                    M ${source.lerp(target, 0.15).addV(perp.mulS(6)).toArray()} 
-                    Q ${source.lerp(target, 0.5).addV(perp.mulS(18)).toArray()}
-                    ${source.lerp(target, 0.85).addV(perp.mulS(6)).toArray()}
+                    M ${O.addV(UShift).addV(RShift).toArray()}
+                    Q ${O.lerp(T, 0.3).addV(centerShift).toArray()}
+                    ${center.toArray()}
+                    T ${T.subV(UShift).addV(RShift).toArray()}
+                    
+                    M ${center.addV(R.mulS(-10)).addV(U.mulS(-10)).toArray()}
+                    L ${center.addV(R.mulS(0)).addV(U.mulS(10)).toArray()}
+                    L ${center.addV(R.mulS(10)).addV(U.mulS(-10)).toArray()}
                 `
             })
         ;
@@ -170,17 +195,13 @@ function update()
 }
 
 
-function findNode(id)
-{
-    return dataNodes[id];
-}
-
 function addLink(source, target, linkId)
 {
     let key = `${source}[to]${target}`;
     if(!(key in dataLinks))
     {
-        dataLinks[key] = { "source": (source), "target": (target), "linkId": linkId };
+        dataLinks[key] = { "source": source, "target": target, "linkId": linkId };
+        //                 dataNodes[source] dataNodes[target]
 
         return true;
     }
@@ -195,10 +216,15 @@ function nodeColor(highlightTitel)
     node = node.attr("fill", (d) => {
         if(d.id == highlightTitel)
         {
-            return "red";
+            return "green";
         }
         return "black";
     });
+}
+
+function updateLink()
+{
+    d3.select("#shareA").attr("href", `${window.location.origin}/?pageids=${Object.values(dataNodes).map(d => d.pageid).join(';')}`);
 }
 
 function validId(titel)
@@ -225,9 +251,6 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
     {
         pr = d3.html(`https://en.wikipedia.org/api/rest_v1/page/html/${titel}`).then(function(data)
         {
-            if(simulation != null) simulation.stop();
-            dataNodes[titel] = { "id": titel };  // , "x": 0, "y": 0, "vx": 0, "vy": 0
-
             if(currentPage != null) currentPage.style("display", "none");
 
             currentPage = pageContainer.append("div")
@@ -235,7 +258,13 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
             ;
             currentPage.node().append(data.documentElement);
 
+
+            if(simulation != null) simulation.stop();
+            let pageid = currentPage.select("meta[property$=pageId]").attr("content");
+            dataNodes[titel] = { "id": titel, "pageid": pageid };  // , "x": 0, "y": 0, "vx": 0, "vy": 0
             
+            updateLink();
+
             currentPage.select("body")
                 .style("height", "auto")
                 .style("overflow", "visible")
@@ -325,7 +354,7 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
     {
         pr = Promise.resolve().then(function()
         {
-            let newPage = d3.select(`#${validId(titel)}`);
+            let newPage = d3.select(`#pageContainer > #${validId(titel)}`);
 
             changePage(currentPage, newPage);
 
@@ -365,10 +394,66 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
         {
             currentPage.node().scrollTop = 0;
         }
+
+        searchButtonClick(false);
     });
 }
 
 //loadWikiPage("Glider (Conway's Life)");
+
+
+let params = new URLSearchParams(location.search);
+/*
+    "pageids"
+    "pages"
+*/
+
+let pr = null;
+if(params.has("pageids"))
+{
+    let pageids = params.get("pageids").split(";").map(d => parseInt(d));
+    // "{{Pageid to title|59082207}}{{Pageid to title|3390}}{{Pageid to title|1124109}}"
+    
+    pr = d3.text('https://en.wikipedia.org/api/rest_v1/transform/wikitext/to/html/Main_Page', {
+        method:"POST",
+        body: JSON.stringify({
+            wikitext: pageids.map(id => `{{Pageid to title|${id}}}`).join(""),
+            body_only: true,
+            stash: true,
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    })
+    .then((data) => {
+        var dataHtml = new DOMParser().parseFromString(data, "text/xml");
+        return Array.from(dataHtml.firstChild.childNodes).map(d => d.innerHTML);
+    });
+}
+else if(params.has("pages"))
+{
+    pr = Promise.resolve().then(() => {
+        return params.get("pages").split(";");
+    });
+}
+
+
+if(pr != null)
+{
+    pr.then((initPages) => {
+        initPages.forEach(p => {
+            loadWikiPage(p);
+        });
+    });
+}
+
+// TODO: use meta tags to get pageid
+
+
+
+
+
+
 
 
 
@@ -392,7 +477,7 @@ function titelOnInput(e)
                     .html(searchRes)
                     .on("click", () => {
                         loadWikiPage(searchRes);
-                        searchButtonClick();
+                        //searchButtonClick();
                     })
                 ;
             });
@@ -403,10 +488,13 @@ inputTitel.on("input", titelOnInput);
 
 
 
-var today = new Date();
-var dd = String(today.getDate()).padStart(2, '0');
-var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var today = new Date(new Date().toUTCString());
+var dd = String(today.getUTCDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0');
 var yyyy = today.getFullYear();
+
+// Won't work on month ends.
+
 
 let pagesFeed = null;
 d3.json(`https://en.wikipedia.org/api/rest_v1/feed/featured/${yyyy}/${mm}/${dd}`)
@@ -451,7 +539,7 @@ d3.select("#randmArticle").on("click", () => {
         .then((data) => 
         {
             loadWikiPage(data.items[0].title);
-            searchButtonClick();
+            //searchButtonClick();
         })
     ;
 });

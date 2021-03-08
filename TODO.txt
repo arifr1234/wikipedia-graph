@@ -16,7 +16,9 @@
 #V Random article.
 #V Open on wikipedia.
 #V Help/how to use (github readme). 
-#  Share graph using link.
+#V Share graph using link.
 #V Link to github.
 #V Text on hover.
 #V Links to section.
+#V Titel
+#  license
