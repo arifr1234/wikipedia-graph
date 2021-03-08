@@ -6,7 +6,7 @@
     This didn't work with (>= 2) because there where too many pages satisfying this condition.
     Maybe (>= 3/4).
 #V Better Search.
-#  Node delete.
+#V Node delete.
 #V Currently viewed page indecation.
 #V Navigation buttons.
     #? Fix page disappearance bug.

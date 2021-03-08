@@ -229,7 +229,8 @@ function updateLink()
 
 function validId(titel)
 {
-    return titel.replace(/ /g, '_').replace(/^[^a-z]|[^\w:-]/gi, m => m.charCodeAt(0));
+    titel = titel.replace(/ /g, '_').replace(/^[^a-z]|[^\w:-]/gi, m => m.charCodeAt(0));
+    return titel[0].match(/\d/) == null ? titel : `N${titel}`;
 }
 
 
@@ -241,7 +242,7 @@ linkFrom[y] contain all the pages with links to page y.
 
 let pageContainer = d3.select("#pageContainer");
 
-function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
+function loadWikiPage(titel, scrollTo, eraseforwardStack=true)
 {
     titel = titel.replace(/_/g, ' ');
 
@@ -373,10 +374,11 @@ function loadWikiPage(titel, scrollTo, eraseForwardQueue=true)
 
         backStack.push([titel, scrollTo]);
         backButton.property('disabled', backStack.length < 2);
+        deleteButton.property('disabled', false);
 
-        if(eraseForwardQueue)
+        if(eraseforwardStack)
         {
-            forwardQueue = [];
+            forwardStack = [];
             forwardButton.property('disabled', true);
         }
 
@@ -552,23 +554,59 @@ d3.select("#randmArticle").on("click", () => {
 
 
 let backStack = [];
-let forwardQueue = [];
+let forwardStack = [];
 
-let backButton = d3.select("#backButton");
-let forwardButton = d3.select("#forwardButton");
+const backButton = d3.select("#backButton");
+const forwardButton = d3.select("#forwardButton");
 
 backButton.on("click", () => {
-    forwardQueue.push(backStack.pop());
+    forwardStack.push(backStack.pop());
 
-    let page = backStack.pop();
+    const page = backStack.pop();
     loadWikiPage(page[0], page[1], false);
 
     forwardButton.property('disabled', false);
 });
 
 forwardButton.on("click", () => {
-    let page = forwardQueue.pop();
+    const page = forwardStack.pop();
     loadWikiPage(page[0], page[1], false);
 
-    forwardButton.property('disabled', forwardQueue.length < 1);
+    forwardButton.property('disabled', forwardStack.length < 1);
+});
+
+
+const deleteButton = d3.select("#deleteButton");
+
+deleteButton.on("click", () => {
+    const titel = backStack.pop()[0];
+
+    delete dataNodes[titel];
+
+    currentPage.remove();
+
+    let linkEntries = Object.entries(dataLinks);
+    linkEntries.forEach((e) => {
+        if(e[1].source.id == titel || e[1].target.id == titel)
+        {
+            delete dataLinks[`${e[1].source.id}[to]${e[1].target.id}`];
+        }
+    });
+
+
+    const len = backStack.length;
+
+    if(len > 0)
+    {
+        const page = backStack.pop();
+        loadWikiPage(page[0], page[1], false);
+    }
+    else
+    {
+        deleteButton.property('disabled', true);
+    }
+    backButton.property('disabled', len <= 1);
+
+    updateLink();
+    update();
 });
