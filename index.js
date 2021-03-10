@@ -117,7 +117,7 @@ function update()
     let nodes = Object.values(dataNodes);
 
     simulation = d3.forceSimulation(nodes)
-        .force("link", d3.forceLink(links).id(d => d.id).distance(200))
+        .force("link", d3.forceLink(links).id(d => d.id).distance(300))
         .force("charge", d3.forceManyBody().strength(-1500))
         //.force("center", d3.forceCenter(width / 2, height / 2))
         /*.force('collision', d3.forceCollide().radius(function(d) {
@@ -227,8 +227,7 @@ function nodeColor(highlightTitel)
 
 function updateLink()
 {
-    //                                 ${location.origin}${location.pathname}
-    d3.select("#shareA").attr("href", `${location.origin}${location.pathname}?pageids=${Object.values(dataNodes).map(d => d.pageid).join(';')}`);
+    d3.select("#shareA").attr("href", `${location.origin}${location.pathname}?pageids=${Object.values(dataNodes).map(d => d.pageid).join('|')}`);
 }
 
 function validId(titel)
@@ -283,7 +282,7 @@ function loadWikiPage(titel, scrollTo, eraseforwardStack=true)
             ;
             
             currentPage.selectAll("a")
-                .each(function() {
+                    {
                     let last = d3.select(this).attr("href");
 
                     let mat = last.match(/^(?:(?:(?:https?:)?\/\/en\.wikipedia\.org\/wiki)|\.)\/([^#/]+)(?:#(.+))?/);
@@ -417,29 +416,15 @@ let params = new URLSearchParams(location.search);
 let pr = null;
 if(params.has("pageids"))
 {
-    let pageids = params.get("pageids").split(";").map(d => parseInt(d));
-    // "{{Pageid to title|59082207}}{{Pageid to title|3390}}{{Pageid to title|1124109}}"
-    
-    pr = d3.text('https://en.wikipedia.org/api/rest_v1/transform/wikitext/to/html/Main_Page', {
-        method:"POST",
-        body: JSON.stringify({
-            wikitext: pageids.map(id => `{{Pageid to title|${id}}}`).join(""),
-            body_only: true,
-            stash: true,
-        }),
-        headers: {
-            "Content-type": "application/json; charset=UTF-8"
-        }
-    })
+    pr = d3.json(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&pageids=${params.get("pageids")}`)
     .then((data) => {
-        var dataHtml = new DOMParser().parseFromString(data, "text/xml");
-        return Array.from(dataHtml.firstChild.childNodes).map(d => d.innerHTML);
+            return Object.values(data.query.pages).map(d => d.title);
     });
 }
 else if(params.has("pages"))
 {
     pr = Promise.resolve().then(() => {
-        return params.get("pages").split(";");
+        return params.get("pages").split("|");
     });
 }
 
