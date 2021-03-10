@@ -228,7 +228,7 @@ function nodeColor(highlightTitel)
 function updateLink()
 {
     //                                 ${location.origin}${location.pathname}
-    d3.select("#shareA").attr("href", `./?pageids=${Object.values(dataNodes).map(d => d.pageid).join(';')}`);
+    d3.select("#shareA").attr("href", `${location.origin}${location.pathname}?pageids=${Object.values(dataNodes).map(d => d.pageid).join(';')}`);
 }
 
 function validId(titel)

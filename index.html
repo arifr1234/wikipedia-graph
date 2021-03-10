@@ -35,8 +35,6 @@
 -->
 <html id="html">
     <head>
-        <base href="">
-
         <script src="https://d3js.org/d3.v6.min.js"></script>
         <script src="./Vec2.js"></script>
 
@@ -210,7 +208,8 @@
                 </a>
 
 
-                <a id="aboutA" style="float: right;" href="./about.html" title="About / Copyright and Licensing information" target="_blank">
+                <a id="aboutA" style="float: right;" href="/about.html" title="About / Copyright and Licensing information" target="_blank">
+                    <script> document.currentScript.parentElement.href = document.currentScript.parentElement.href; </script> <!-- HACK: this will set the href to the absolute path using the defult <base>, before the new <base> is set. -->
                     <button id="aboutButton"></button>
                 </a>
                 <a id="githubA" style="float: right;" href="https://github.com/arifr1234/wikipedia-graph" title="GitHub" target="_blank">
