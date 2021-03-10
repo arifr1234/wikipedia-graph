@@ -282,7 +282,8 @@ function loadWikiPage(titel, scrollTo, eraseforwardStack=true)
             ;
             
             currentPage.selectAll("a")
-                    {
+                .each(function()
+                {
                     let last = d3.select(this).attr("href");
 
                     let mat = last.match(/^(?:(?:(?:https?:)?\/\/en\.wikipedia\.org\/wiki)|\.)\/([^#/]+)(?:#(.+))?/);
@@ -418,7 +419,7 @@ if(params.has("pageids"))
 {
     pr = d3.json(`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&pageids=${params.get("pageids")}`)
     .then((data) => {
-            return Object.values(data.query.pages).map(d => d.title);
+        return Object.values(data.query.pages).map(d => d.title);
     });
 }
 else if(params.has("pages"))
