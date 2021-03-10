@@ -1,23 +1,26 @@
-if(false)
-{
-    var canvas = document.createElement('canvas'),
-            context = canvas.getContext('2d');
+/*
+    Third-party licenses
 
-        /**
-         * Measures the rendered width of arbitrary text given the font size and font face
-         * @param {string} text The text to measure
-         * @param {number} fontSize The font size in pixels
-         * @param {string} fontFace The font face ("Arial", "Helvetica", etc.)
-         * @returns {number} The width of the text
-         **/
-        function getWidth(text, fontSize, fontFace) {
-            context.font = fontSize + 'px ' + fontFace;
-            return context.measureText(text).width;
-        }
-}
+    See also https://arifr1234.github.io/wikipedia-graph/about.html for further information.
 
+    This file contains modified javascript code from an Observable Notebook (https://observablehq.com/@d3/force-directed-graph).
+    * Copyright 2017-2020 Observable, Inc.; Licensed under ISC license (text below).
 
+    ISC License:
 
+    Permission to use, copy, modify, and/or distribute this software for any
+    purpose with or without fee is hereby granted, provided that the above
+    copyright notice and this permission notice appear in all copies.
+
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+*/
 
 
 
@@ -224,7 +227,8 @@ function nodeColor(highlightTitel)
 
 function updateLink()
 {
-    d3.select("#shareA").attr("href", `${location.origin}${location.pathname}?pageids=${Object.values(dataNodes).map(d => d.pageid).join(';')}`);
+    //                                 ${location.origin}${location.pathname}
+    d3.select("#shareA").attr("href", `./?pageids=${Object.values(dataNodes).map(d => d.pageid).join(';')}`);
 }
 
 function validId(titel)

@@ -1,4 +1,38 @@
 <!DOCTYPE html>
+<!--
+    Third-party licenses
+
+    See also https://arifr1234.github.io/wikipedia-graph/about.html for further information.
+
+    Icons from Wikimedia Commons:
+
+    * "VisualEditor - Icon - External-link.svg" : Copyright (c) 2011-2013 VisualEditor team (https://git.wikimedia.org/blob/mediawiki%2Fextensions%2FVisualEditor.git/master/AUTHORS.txt); Licensed under MIT license (text below).
+        (https://commons.wikimedia.org/wiki/File:VisualEditor_-_Icon_-_External-link.svg)
+    
+    * "OOjs UI icon help-ltr.svg" & "OOjs UI indicator search-ltr.svg" & "OOjs UI icon info big.svg" & "OOjs UI icon trash apex.svg" : Copyright (c) 2011-2017 OOjs UI Team and other contributors (https://phabricator.wikimedia.org/diffusion/GOJU/browse/master/AUTHORS.txt) ; Licensed under MIT license (text below).
+        (https://commons.wikimedia.org/wiki/File:OOjs_UI_icon_help-ltr.svg) (https://commons.wikimedia.org/wiki/File:OOjs_UI_indicator_search-ltr.svg) (https://commons.wikimedia.org/wiki/File:OOjs_UI_icon_info_big.svg) (https://commons.wikimedia.org/wiki/File:OOjs_UI_icon_trash_apex.svg)
+
+    
+    MIT License:
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
 <html id="html">
     <head>
         <script src="https://d3js.org/d3.v6.min.js"></script>
@@ -85,16 +119,21 @@
 
             #backButton
             {
-                background: no-repeat center / 1.5em url(./leftArrow.svg);
+                background: no-repeat center / 1.5em url(./img/leftArrow.svg);
             }
             #forwardButton
             {
-                background: no-repeat center / 1.5em url(./rightArrow.svg);
+                background: no-repeat center / 1.5em url(./img/rightArrow.svg);
             }
 
             #openInWikipediaButton
             {
                 background: no-repeat center / 2em url(https://upload.wikimedia.org/wikipedia/commons/5/5a/Wikipedia%27s_W.svg);
+            }
+
+            #deleteButton
+            {
+                background: no-repeat -0.08em 0em / 2.25em url(https://upload.wikimedia.org/wikipedia/commons/4/4c/OOjs_UI_icon_trash_apex.svg);
             }
 
             #helpButton
@@ -105,6 +144,16 @@
             #shareButton
             {
                 background: no-repeat center / 1.25em url(https://upload.wikimedia.org/wikipedia/commons/d/d9/VisualEditor_-_Icon_-_External-link.svg);
+            }
+
+            #aboutButton
+            {
+                background: no-repeat center / 1.75em url(https://upload.wikimedia.org/wikipedia/commons/6/63/OOjs_UI_icon_info_big.svg);
+            }
+
+            #githubButton
+            {
+                background: no-repeat center / 1.75em url(./img/GitHub-Mark-32px.png);
             }
 
             .suggestion
@@ -154,12 +203,21 @@
                     <button id="openInWikipediaButton"></button>
                 </a>
                 <button id="deleteButton" title="Remove" disabled class="page"></button>
-                <a id="helpA" href="https://github.com/arifr1234/wikipedia-graph/blob/master/README.md" title="Help/Info" target="_blank">
-                    <button id="helpButton"></button>
-                </a>
-                <a id="shareA" title="Share network (use for saving)" target="_blank">
+                <a id="shareA" href="./" title="Share network (use for saving)" target="_blank">
                     <button id="shareButton"></button>
                 </a>
+
+
+                <a id="aboutA" style="float: right;" href="./about.html" title="About / Copyright and Licensing information" target="_blank">
+                    <button id="aboutButton"></button>
+                </a>
+                <a id="githubA" style="float: right;" href="https://github.com/arifr1234/wikipedia-graph" title="GitHub" target="_blank">
+                    <button id="githubButton"></button>
+                </a>
+                <a id="helpA" style="float: right;" href="https://github.com/arifr1234/wikipedia-graph/blob/master/README.md#how-to-use-it" title="Help" target="_blank">
+                    <button id="helpButton"></button>
+                </a>
+                
             </div>
             <hr style="margin: 0px; height: 0.5px;"/>
             <div id="pageContainer">
@@ -179,10 +237,6 @@
         
         
         <div id="svgcontainer"></div>
-
-        <a style="position: absolute; top: 0px; right: 0px;" href="https://github.com/arifr1234/wikipedia-graph">
-            <img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_white_ffffff.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1">
-        </a>
 
         
 
